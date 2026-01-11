@@ -1,36 +1,85 @@
-# Movie Profitability Prediction
+# Movie Profit Prediction Project
 
-This project analyzes ~5,000 movies to identify factors influencing profitability
-and builds regression-based ML models to predict profit.
+A data project that predicts movie profitability using budget, genre, and other movie data.
 
-Profit is defined as:
-profit = revenue - budget
+## What This Project Does
 
-Dataset: TMDB 5000 Movies
+Takes messy movie data and turns it into predictions about how much money a movie might make.
 
-## Performance Optimization
+## The Challenge
 
-To improve query performance on the normalized movie database, indexing strategies were applied to frequently joined and 
-filtered columns.
+Movie data is often:
+- Messy and incomplete
+- Hard to analyze directly
+- From different sources with different formats
 
-### Baseline
-A genre-based aggregation query was used to analyze the number of movies per genre released after the year 2000.  
-The query involved multiple joins across normalized tables (`movies`, `movie_genres`, `genres`) and filtering on 
-`release_year`.
+**Goal:** Predict movie profit before release.
 
-### Optimization Techniques
-- Added an index on `movies(release_year)` to optimize filtering
-- Leveraged indexed foreign keys on:
-  - `movie_genres(movie_id)`
-  - `movie_genres(genre_id)`
-  - `genres(genre_id)`
-- Reduced the likelihood of full table scans during joins
+## How It Works
 
-### Results
-- `EXPLAIN QUERY PLAN` confirmed index-based searches instead of table scans
-- Query execution time remained constant (~0.002s) due to small dataset size
-- Logical query efficiency improved by ~30%+ through reduced scanned rows
-- Query is now optimized for scalability as data volume increases
+### 1. Data Preparation
+- Load movie data (budget, revenue, genres, dates)
+- Clean up missing or bad data
+- Calculate: `profit = revenue - budget`
 
-This optimization ensures efficient analytical queries and demonstrates production-ready SQL performance tuning.
+### 2. Feature Creation
+- Extract year and month from release dates
+- Turn genres into numbers computers can understand
+- Save this format for future predictions
 
+### 3. Database Setup
+- Organize data into separate tables:
+  - Movies
+  - Genres
+  - Which movies have which genres
+- Make queries run faster with indexes
+
+### 4. Machine Learning
+**Target:** Predict profit amount
+
+**Models Tested:**
+1. Random Forest
+2. Gradient Boosting
+
+**Results:**
+- Gradient Boosting worked better
+- Still makes mistakes (about $91 million on average)
+- Budget is the most important factor
+
+## Model Performance
+
+**Comparison:**
+- **Random Forest:** 30% accuracy
+- **Gradient Boosting:** 40% accuracy ✓ (chosen)
+
+**Key Findings:**
+- Budget matters most
+- Action/Adventure movies tend to be more profitable
+- Model works best for mid-budget movies
+
+## Project Structure
+project/
+├── data/ # Saved models & results
+├── src/ # Python scripts
+├── notebooks/ # Data exploration
+└── README.md
+
+## How to Use
+
+1. Train model: `python src/train.py`
+2. Make predictions: `python src/predict.py`
+
+Predictions are saved to `data/results/predicted_profits.csv`
+
+## Tools Used
+
+- **Python** (pandas, scikit-learn)
+- **SQL** (for organizing data)
+- **Git** (for version control)
+
+## Key Takeaways
+
+1. Bigger budgets → usually bigger profits (and bigger risks)
+2. Genre affects profitability
+3. Clean, organized data makes better predictions
+4. Simple models can still provide useful insights
